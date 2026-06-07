@@ -11,7 +11,7 @@ from captcha.models import CaptchaStore
 from captcha.helpers import captcha_image_url
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-
+import bleach
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CommentListView(View):
@@ -41,14 +41,19 @@ class CommentListView(View):
         end = start + per_page
         total = comments.count()
 
-        data = [{
-            'id': c.id,
-            'text': c.text,
-            'author': c.author.username,
-            'created_at': c.created_at.isoformat(),
-        }
-            for c in comments[start:end]
-        ]
+        def serialize_comment(c):
+            return {
+                'id': c.id,
+                'text': c.text,
+                'author': c.author.username,
+                'email': c.author.email,
+                'home_page': c.author.home_page or '',
+                'created_at': c.created_at.isoformat(),
+                'file': c.file.url if c.file else None,
+                'replies': [serialize_comment(r) for r in c.replies.all()]
+            }
+
+        data = [serialize_comment(c) for c in comments[start:end]]
         return JsonResponse({'comments':data,
                              'total': total,
                              'page':page,
@@ -86,8 +91,9 @@ class CommentListView(View):
             return JsonResponse({'error':'username invalid'},status = 400)
         if not re.match(r'^[^@]+@[^@]+\.[^@]+$',email):
             return JsonResponse({'error':'email invalid'},status=400)
-        allowed_tags = r'^[^<]*(<(a|code|i|strong)[^>]*>.*?</(a|code|i|strong)>)*[^<]*$'
-        text = html.escape(text)
+        allowed_tags = ['a', 'code', 'i', 'strong']
+        allowed_attrs = {'a': ['href', 'title']}
+        text = bleach.clean(text, tags=allowed_tags, attributes=allowed_attrs)
 
         file = request.FILES.get('file')
         if file:
@@ -150,11 +156,13 @@ class CommentDetailView(View):
             return JsonResponse({"error":'Not Found'},status=404)
         
         def serialize(c):
-            return{
+            return {
                 'id': c.id,
                 'text': c.text,
                 'author': c.author.username,
+                'email': c.author.email,
                 'created_at': c.created_at.isoformat(),
+                'file': c.file.url if c.file else None,
                 'replies': [serialize(r) for r in c.replies.all()]
             }
         return JsonResponse(serialize(comment))
