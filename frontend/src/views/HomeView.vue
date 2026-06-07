@@ -2,20 +2,17 @@
   <div class="container">
     <h1>Комментарии</h1>
 
-    <!-- Форма -->
     <div class="form-block">
       <h2>Добавить комментарий</h2>
       <input v-model="form.username" placeholder="Username (латиница и цифры)" />
       <input v-model="form.email" placeholder="Email" />
       <input v-model="form.home_page" placeholder="Home page (необязательно)" />
       
-      <!-- Капча -->
       <div class="captcha-block">
         <img :src="captcha.image" @click="loadCaptcha" title="Обновить капчу" />
         <input v-model="form.captcha_value" placeholder="Введи капчу" />
       </div>
 
-      <!-- Панель тегов -->
       <div class="tag-panel">
         <button @click="insertTag('i')">[i]</button>
         <button @click="insertTag('strong')">[strong]</button>
@@ -31,7 +28,7 @@
         <button @click="submitComment">Отправить</button>
       </div>
 
-      <!-- Предпросмотр -->
+
       <div v-if="previewText" class="preview-block">
         <h3>Предпросмотр:</h3>
         <p>{{ previewText }}</p>
@@ -40,7 +37,6 @@
       <p v-if="error" class="error">{{ error }}</p>
     </div>
 
-    <!-- Таблица комментариев -->
     <div class="comments-block">
       <table>
         <thead>
@@ -65,24 +61,24 @@
                 <img v-if="isImage(c.file)" :src="getFileUrl(c.file)" class="thumb" @click="openLightbox(getFileUrl(c.file))" />
                 <a v-else :href="c.file" target="_blank"> файл</a>
               </div>
-              <!-- Ответы -->
-              <div v-if="c.replies && c.replies.length" class="replies">
-                <div v-for="r in c.replies" :key="r.id" class="reply">
-                  <b>{{ r.author }}</b>: <span v-html="r.text"></span>
-                  <div v-if="r.file">
-                    <img v-if="isImage(r.file)" :src="getFileUrl(r.file)" class="thumb" @click="openLightbox(getFileUrl(r.file))" />
-                    <a v-else :href="getFileUrl(r.file)" target="_blank">файл</a>
-                  </div>
-                </div>
-              </div>
               <button @click="setReply(c.id)">Ответить</button>
-              <span v-if="replyTo === c.id" style="color:#4f46e5; font-size:12px; margin-left:8px;">↑ Отвечаешь на этот комментарий</span>
+              <span v-if="reptyTo === c.id" style="color:#4f46e5; font-size:12px; margin-left:8px;"> Отвечаешь на этот комментарий</span>
+              <div v-if="c.replies && c.replies.length" class="replies">
+                CommentItem
+                  v-for="r in c.replies"
+                  :key="r.id"
+                  :comment="r"
+                  :replyTo="replyTo"
+                  @reply="setReply"
+                  @lightbox="openLightbox"
+                />
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <!-- Пагинация -->
+
       <div class="pagination">
         <button @click="changePage(currentPage - 1)" :disabled="currentPage === 1">←</button>
         <span>{{ currentPage }} / {{ totalPages }}</span>
@@ -90,7 +86,6 @@
       </div>
     </div>
 
-    <!-- Lightbox -->
     <div v-if="lightboxImg" class="lightbox" @click="lightboxImg = null">
       <img :src="lightboxImg" />
     </div>
@@ -98,6 +93,7 @@
 </template>
 
 <script setup>
+import CommentItem from '../components/CommentItem.vue'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
@@ -177,6 +173,33 @@ const submitComment = async () => {
   if (replyTo.value) data.append('parent_id', replyTo.value)
   if (selectedFile.value) data.append('file', selectedFile.value)
 
+  if (!form.value.username){
+    error.value = 'Username обязателен'
+    return
+  }
+  if (!/^[a-zA-Z0-9]+$/.test(form.value.username)){
+    error.value = 'Username латиница и цифры'
+    return
+  }
+  if (!form.value.email){
+    error.value = 'Email обязателен'
+    return
+  }
+  if (!/^[^@]+@[^@]+\.[^@]+$/.test(form.value.email)){
+    error.value = 'неверный формат почты'
+    return
+  }
+  if (!form.value.text){
+    error.value = 'текст обязателен'
+    return
+  }
+  if (!form.value.captcha_value){
+    error.value = 'Введите каптчу'
+    return
+  }
+
+
+
   try {
     await axios.post(`${API}/comments/`, data)
     form.value = { username: '', email: '', home_page: '', text: '', captcha_value: '' }
@@ -197,9 +220,15 @@ const insertTag = (tag) => {
   const selected = form.value.text.substring(start, end)
   const before = form.value.text.substring(0, start)
   const after = form.value.text.substring(end)
-  form.value.text = `${before}<${tag}>${selected}</${tag}>${after}`
+  
+  if (tag === 'a') {
+    const href = prompt('Введи ссылку:')
+    if (!href) return
+    form.value.text = `${before}<a href="${href}">${selected || href}</a>${after}`
+  } else {
+    form.value.text = `${before}<${tag}>${selected}</${tag}>${after}`
+  }
 }
-
 const isImage = (url) => /\.(jpg|jpeg|gif|png)$/i.test(url)
 const getFileUrl = (url) => {
   if (!url) return null
@@ -247,6 +276,15 @@ h1 {
   padding-bottom: 10px;
 }
 
+
+code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 13px;
+  color: #e53e3e;
+}
 
 .form-block {
   background: white;

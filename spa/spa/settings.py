@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from decouple import config
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -61,20 +62,15 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('127.0.0.1', 6379)],
+            'hosts': [config('REDIS_URL', default='redis://127.0.0.1:6379')],
         },
     },
 }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('POSTGRES_DB'),
-        'USER': config('POSTGRES_USER'),
-        'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=f"postgresql://{config('POSTGRES_USER')}:{config('POSTGRES_PASSWORD')}@localhost:5432/{config('POSTGRES_DB')}"
+    )
 }
 
 AUTH_PASSWORD_VALIDATORS = [
