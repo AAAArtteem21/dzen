@@ -101,7 +101,7 @@ import CommentItem from '../components/CommentItem.vue'
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const API = 'http://127.0.0.1:8000/api'
+const API = 'https://dzen-8t2e.onrender.com/api'
 
 const comments = ref([])
 const currentPage = ref(1)
@@ -247,7 +247,7 @@ const openLightbox = (url) => {
 
 // WebSocket
 const connectWS = () => {
-  const ws = new WebSocket('ws://127.0.0.1:8000/ws/comments/')
+  const ws = new WebSocket('wss://dzen-8t2e.onrender.com/ws/comments/')
   ws.onmessage = (e) => {
     const comment = JSON.parse(e.data)
     comments.value.unshift(comment)
