@@ -10,8 +10,9 @@ DEBUG = config('DEBUG', default=True, cast=bool)
 
 
 ALLOWED_HOSTS = [
-     "localhost",
-    "127.0.0.1",]
+    "localhost",
+    "127.0.0.1",
+    '.onrender.com',]
 
 
 INSTALLED_APPS = [
@@ -69,7 +70,7 @@ CHANNEL_LAYERS = {
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgresql://{config('POSTGRES_USER')}:{config('POSTGRES_PASSWORD')}@localhost:5432/{config('POSTGRES_DB')}"
+        default=config('DATABASE_URL', default='postgresql://localhost/spa')
     )
 }
 
@@ -100,5 +101,6 @@ USE_TZ = True
 
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
