@@ -4,6 +4,10 @@
 
     <div class="form-block">
       <h2>Добавить комментарий</h2>
+      <div v-if="replyTo" style="background:#e0e7ff; padding:8px 12px; border-radius:6px; margin-bottom:12px; color:#4f46e5; font-size:13px;">
+        ↑ Отвечаешь на комментарий #{{ replyTo }}
+        <button @click="replyTo = null" style="margin-left:8px; background:none; border:none; cursor:pointer; color:#ef4444;">✕</button>
+      </div>
       <input v-model="form.username" placeholder="Username (латиница и цифры)" />
       <input v-model="form.email" placeholder="Email" />
       <input v-model="form.home_page" placeholder="Home page (необязательно)" />
@@ -59,12 +63,12 @@
               <span v-html="c.text"></span>
               <div v-if="c.file">
                 <img v-if="isImage(c.file)" :src="getFileUrl(c.file)" class="thumb" @click="openLightbox(getFileUrl(c.file))" />
-                <a v-else :href="c.file" target="_blank"> файл</a>
+                <a v-else :href="getFileUrl(c.file)" target="_blank">файл</a>
               </div>
               <button @click="setReply(c.id)">Ответить</button>
-              <span v-if="reptyTo === c.id" style="color:#4f46e5; font-size:12px; margin-left:8px;"> Отвечаешь на этот комментарий</span>
+              <span v-if="replyTo === c.id" style="color:#4f46e5; font-size:12px; margin-left:8px;"> Отвечаешь на этот комментарий</span>
               <div v-if="c.replies && c.replies.length" class="replies">
-                CommentItem
+                <CommentItem
                   v-for="r in c.replies"
                   :key="r.id"
                   :comment="r"
@@ -205,6 +209,8 @@ const submitComment = async () => {
     form.value = { username: '', email: '', home_page: '', text: '', captcha_value: '' }
     replyTo.value = null
     selectedFile.value = null
+    const fileInput = document.querySelector('input[type="file"]')
+    if (fileInput) fileInput.value = ''
     await loadCaptcha()
     await loadComments()
   } catch (e) {

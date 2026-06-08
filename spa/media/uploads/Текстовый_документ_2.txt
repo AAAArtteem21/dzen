@@ -1,0 +1,34 @@
+1 
+import random
+
+nums = [random.randint(1, 10) for _ in range(5)] + \
+       [random.randint(10, 30) for _ in range(10)]
+
+print(nums)
+2
+a = int(input("Введіть перше число: "))
+b = int(input("Введіть друге число: "))
+
+digits_a = set(str(abs(a)))
+digits_b = set(str(abs(b)))
+
+common = digits_a & digits_b
+print("Спільні цифри:", common)
+
+3
+result = {x for x in range(1, 51) if (x % 3 == 0 or x % 4 == 0) and not (x % 3 == 0 and x % 4 == 0)}
+print(result)
+
+4
+
+result = set()
+for i in range(1, 20, 2):
+    result.add((i, i + 2))
+
+print(result)
+
+5
+text = input("Введіть текст: ")
+
+result = {char: text.count(char) for char in set(text)}
+print(result)
