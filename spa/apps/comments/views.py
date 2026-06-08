@@ -49,7 +49,7 @@ class CommentListView(View):
                 'email': c.author.email,
                 'home_page': c.author.home_page or '',
                 'created_at': c.created_at.isoformat(),
-                'file': c.file.url if c.file else None,
+                'file': request.build_absolute_uri(c.file.url) if c.file else None,
                 'replies': [serialize_comment(r) for r in c.replies.all()]
             }
 
@@ -133,7 +133,7 @@ class CommentListView(View):
                     'text':comment.text,
                     'author': comment.author.username,
                     'created_at': comment.created_at.isoformat(),
-                    'file': comment.file.url if comment.file else None,
+                    'file': request.build_absolute_uri(comment.file.url) if comment.file else None,
 
                 }
             }
@@ -162,7 +162,7 @@ class CommentDetailView(View):
                 'author': c.author.username,
                 'email': c.author.email,
                 'created_at': c.created_at.isoformat(),
-                'file': c.file.url if c.file else None,
+                'file': request.build_absolute_uri(c.file.url) if c.file else None,
                 'replies': [serialize(r) for r in c.replies.all()]
             }
         return JsonResponse(serialize(comment))
