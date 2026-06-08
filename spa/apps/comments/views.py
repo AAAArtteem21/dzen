@@ -82,7 +82,7 @@ class CommentListView(View):
         if not re.match(r'^[^@]+@[^@]+\.[^@]+$', email):
             return JsonResponse({'error': 'email invalid'}, status=400)
 
-        text = bleach.clean(text, tags=['a', 'code', 'i', 'strong'], attributes={'a': ['href', 'title']})
+        text = bleach.clean(text, tags=['a', 'code', 'i', 'strong'], attributes={'a': ['href', 'title']}, strip=True)
 
         file = request.FILES.get('file')
         file_url = None
@@ -120,6 +120,7 @@ class CommentListView(View):
                         'id': comment.id,
                         'text': comment.text,
                         'author': comment.author.username,
+                        'email': comment.author.email,
                         'created_at': comment.created_at.isoformat(),
                         'file': comment.file_url,
                     }
