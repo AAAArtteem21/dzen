@@ -250,7 +250,11 @@ const connectWS = () => {
   const ws = new WebSocket('wss://dzen-8t2e.onrender.com/ws/comments/')
   ws.onmessage = (e) => {
     const comment = JSON.parse(e.data)
-    comments.value.unshift(comment)
+    if (!comment.parent_id) {
+      comments.value.unshift(comment)
+    } else {
+      loadComments()
+    }
   }
   ws.onclose = () => setTimeout(connectWS, 3000)
 }
