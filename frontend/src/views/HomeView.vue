@@ -210,6 +210,7 @@ const submitComment = async () => {
     form.value = { username: '', email: '', home_page: '', text: '', captcha_value: '' }
     replyTo.value = null
     selectedFile.value = null
+    previewText.value = ''
     const fileInput = document.querySelector('input[type="file"]')
     if (fileInput) fileInput.value = ''
     await loadCaptcha()
