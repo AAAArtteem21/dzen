@@ -251,15 +251,10 @@ const connectWS = () => {
   const ws = new WebSocket(`${WS_URL}/ws/comments/`)
   ws.onmessage = (e) => {
     const comment = JSON.parse(e.data)
-    if (!comment.parent_id) {
-      comments.value.unshift(comment)
-    } else {
-      loadComments()
-    }
+    loadComments()  // всегда перезагружаем
   }
   ws.onclose = () => setTimeout(connectWS, 3000)
 }
-
 onMounted(() => {
   console.log('API:', import.meta.env.VITE_API_URL)
   loadCaptcha()

@@ -50,13 +50,13 @@ pip install -r requirements.txt
 Создай `.env` в папке `spa/`:
 
 ```
-SECRET_KEY=your-secret-key
+SECRET_KEY=your-super-secret-key-which-is-very-long-123456789
 DEBUG=True
-DATABASE_URL=postgresql://user:password@localhost:5432/spa_db
+DATABASE_URL=postgresql://neondb_owner:npg_XqdMvcbEp4j1@ep-wandering-poetry-apt5vme2-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require
 REDIS_URL=redis://127.0.0.1:6379
-CLOUDINARY_CLOUD_NAME=your-cloud-name
-CLOUDINARY_API_KEY=your-api-key
-CLOUDINARY_API_SECRET=your-api-secret
+CLOUDINARY_CLOUD_NAME=dqvwmner2
+CLOUDINARY_API_KEY=768219968177358
+CLOUDINARY_API_SECRET=GmMjFkpFFHjGBQPHtP7np3u3FG4
 ```
 
 ```bash
@@ -104,3 +104,4 @@ text text
 file_url varchar
 created_at timestamp
 }
+![alt text](image.png)
